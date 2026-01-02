@@ -1,0 +1,4 @@
+name: OG-poll
+version: '1.0'
+main: hu.exteron.oGPoll.OGPoll
+api-version: '1.21'
