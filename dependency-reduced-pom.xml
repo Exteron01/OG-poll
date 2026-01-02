@@ -41,10 +41,6 @@
                   <pattern>org.incendo.cloud</pattern>
                   <shadedPattern>hu.exteron.ogpoll.libs.cloud</shadedPattern>
                 </relocation>
-                <relocation>
-                  <pattern>com.artillexstudios.axapi</pattern>
-                  <shadedPattern>hu.exteron.ogpoll.libs.axapi</shadedPattern>
-                </relocation>
               </relocations>
               <filters>
                 <filter>
@@ -68,7 +64,7 @@
       <url>https://repo.papermc.io/repository/maven-public/</url>
     </repository>
     <repository>
-      <id>matsuura-repo</id>
+      <id>Cloud-repo</id>
       <url>https://repo.matsuura.dev/repository/maven-public/</url>
     </repository>
   </repositories>

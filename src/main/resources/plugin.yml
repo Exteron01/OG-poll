@@ -1,4 +1,20 @@
 name: OG-poll
 version: '1.0'
-main: hu.exteron.oGPoll.OGPoll
+main: hu.exteron.ogpoll.OGPoll
 api-version: '1.21'
+authors: [Exteron]
+description: Really cool poll system or sum like that
+
+permissions:
+  ogpoll.create:
+    description: Create new polls
+    default: op
+  ogpoll.manage:
+    description: Close and remove polls
+    default: op
+  ogpoll.vote:
+    description: Vote in polls
+    default: true
+  ogpoll.view:
+    description: View poll list
+    default: true
