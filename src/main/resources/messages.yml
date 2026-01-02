@@ -1,0 +1,21 @@
+poll-created: "<green>Poll created successfully! ID: {id}</green>"
+poll-closed: "<yellow>Poll '{question}' has been closed.</yellow>"
+poll-removed: "<red>Poll removed.</red>"
+vote-success: "<green>You voted for: {option}</green>"
+vote-already: "<red>You've already voted in this poll!</red>"
+
+error:
+  no-permission: "<red>You don't have permission to do that.</red>"
+  poll-not-found: "<red>Poll not found.</red>"
+  invalid-duration: "<red>Invalid duration format. Use: 5m, 2h, 1d</red>"
+  duration-too-short: "<red>Duration must be at least {min} minutes.</red>"
+  duration-too-long: "<red>Duration cannot exceed {max} minutes.</red>"
+  max-polls-reached: "<red>Maximum active polls ({max}) reached.</red>"
+  poll-expired: "<red>This poll has expired.</red>"
+
+chat-input:
+  enter-question: "<yellow>Type your poll question in chat (or 'cancel' to abort):</yellow>"
+  enter-option: "<yellow>Type option #{number} (or 'done' to finish, 'cancel' to abort):</yellow>"
+  cancelled: "<gray>Poll creation cancelled.</gray>"
+
+poll-expired-broadcast: "<yellow>Poll '{question}' has ended!</yellow>"

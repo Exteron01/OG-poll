@@ -20,8 +20,8 @@ public final class OGPoll extends AxPlugin {
         getLogger().info("Enabling OG-Poll...");
 
         configManager = new ConfigManager(this);
-        databaseManager = new DatabaseManager(this);
-        pollManager = new PollManager(this);
+        databaseManager = new DatabaseManager(this, configManager);
+        pollManager = new PollManager(this, configManager);
         pollManager.loadActivePolls();
 
         getLogger().info("OG-Poll enabled successfully!");

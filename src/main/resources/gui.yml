@@ -1,0 +1,73 @@
+# Poll Creation Template Selection GUI
+creation-template-gui:
+  title: "Select Poll Type</gradient>"
+  rows: 3
+
+  templates:
+    yes-no:
+      slot: 11
+      material: EMERALD
+      name: "<green>Yes/No Poll</green>"
+      lore:
+        - "<gray>Simple yes or no question</gray>"
+        - "<yellow> ➡ Click to select</yellow>"
+
+    multiple-choice-3:
+      slot: 13
+      material: PAPER
+      name: "<blue>3 Options</blue>"
+      lore:
+        - "<gray>Poll with 3 choices</gray>"
+        - "<yellow> ➡ Click to select</yellow>"
+
+    multiple-choice-4:
+      slot: 15
+      material: PAPER
+      name: "<blue>4 Options</blue>"
+      lore:
+        - "<gray>Poll with 4 choices</gray>"
+        - "<yellow> ➡ Click to select</yellow>"
+
+    multiple-choice-6:
+      slot: 22
+      material: BOOK
+      name: "<blue>6 Options</blue>"
+      lore:
+        - "<gray>Poll with 6 choices</gray>"
+        - "<yellow> ➡ Click to select</yellow>"
+
+# Poll List GUI
+poll-list-gui:
+  title: "Active Polls</gradient>"
+  rows: 6
+
+  poll-item:
+    material: BOOK
+    name: "<yellow>{question}</yellow>"
+    lore:
+      - "<gray>Created: {date}</gray>"
+      - "<gray>Expires: {expires}</gray>"
+      - "<gray>Votes: {total_votes}</gray>"
+      - ""
+      - "<green> ➡ Click to vote!</green>"
+
+  no-polls-item:
+    slot: 22
+    material: BARRIER
+    name: "<red>No Active Polls</red>"
+
+# Poll Voting GUI
+voting-gui:
+  title: "<yellow>{question}</yellow>"
+  rows: 3
+
+  option-item:
+    material: PAPER
+    name: "<aqua>{option}</aqua>"
+    lore:
+      - "<gray>Votes: {votes}</gray>"
+      - ""
+      - "<green> ➡ Click to vote!</green>"
+
+  already-voted-lore:
+    - "<gold>You voted for this!</gold>"

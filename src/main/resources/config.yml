@@ -1,0 +1,24 @@
+prefix: "<#FFA239><b>Polls</b></#FFA239> <gray>»</gray> "
+
+# Database Configuration
+database:
+  type: "h2"
+  database: ogpoll
+  pool:
+    maximum-pool-size: 10
+    minimum-idle: 2
+    maximum-lifetime: 1800000
+    keepalive-time: 0
+    connection-timeout: 5000
+
+poll:
+  max-active-polls: 10
+  min-options: 2
+  max-options: 6
+  show-vote-counts: true
+  vote-cooldown-milliseconds: 2000
+
+duration:
+  # minimum and maximum duration in minutes
+  min-minutes: 1
+  max-minutes: 10080
