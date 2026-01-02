@@ -1,6 +1,6 @@
 package hu.exteron.ogpoll.managers;
 
-import hu.exteron.oGPoll.OGPoll;
+import hu.exteron.ogpoll.OGPoll;
 
 public class PollManager {
     private final OGPoll plugin;

@@ -39,6 +39,12 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>*:*</include>
+                                    <include>com.artillexstudios.axapi:axapi</include>
+                                </includes>
+                            </artifactSet>
                             <relocations>
                                 <relocation>
                                     <pattern>dev.triumphteam.gui</pattern>
@@ -104,8 +110,6 @@
             <groupId>com.artillexstudios.axapi</groupId>
             <artifactId>axapi</artifactId>
             <version>1.4.823</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/axapi-1.4.823-all.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

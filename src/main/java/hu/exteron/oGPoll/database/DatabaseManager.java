@@ -1,6 +1,6 @@
 package hu.exteron.ogpoll.database;
 
-import hu.exteron.oGPoll.OGPoll;
+import hu.exteron.ogpoll.OGPoll;
 
 public class DatabaseManager {
     private final OGPoll plugin;
@@ -11,6 +11,6 @@ public class DatabaseManager {
     }
 
     public void shutdown() {
-        // TODO: we need the to close the db connection
+        // TODO: we need to close the db connection
     }
 }
