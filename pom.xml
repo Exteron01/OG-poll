@@ -38,6 +38,28 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>dev.triumphteam.gui</pattern>
+                                    <shadedPattern>hu.exteron.ogpoll.libs.triumphgui</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.incendo.cloud</pattern>
+                                    <shadedPattern>hu.exteron.ogpoll.libs.cloud</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -55,6 +77,10 @@
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>Cloud-repo</id>
+            <url>https://repo.matsuura.dev/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -63,6 +89,23 @@
             <artifactId>paper-api</artifactId>
             <version>1.21-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.incendo</groupId>
+            <artifactId>cloud-paper</artifactId>
+            <version>2.0.0-beta.10</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.triumphteam</groupId>
+            <artifactId>triumph-gui</artifactId>
+            <version>3.1.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.artillexstudios.axapi</groupId>
+            <artifactId>axapi</artifactId>
+            <version>1.4.823</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/axapi-1.4.823-all.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
