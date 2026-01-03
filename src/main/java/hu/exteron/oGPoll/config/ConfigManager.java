@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.config.Config;
 import com.artillexstudios.axapi.utils.StringUtils;
 import hu.exteron.ogpoll.OGPoll;
 import net.kyori.adventure.text.Component;
+import org.bukkit.command.CommandSender;
 
 import java.io.File;
 import java.util.Collections;
@@ -114,6 +115,14 @@ public class ConfigManager {
         String raw = messagesConfig.getString(path, "");
         String resolved = applyReplacements(prependPrefix(raw), replacements);
         return StringUtils.formatToString(resolved);
+    }
+
+    public void sendMessage(CommandSender sender, String path) {
+        sender.sendMessage(message(path));
+    }
+
+    public void sendMessage(CommandSender sender, String path, Map<String, String> replacements) {
+        sender.sendMessage(message(path, replacements));
     }
 
     private void loadConfigs() {
