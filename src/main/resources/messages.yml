@@ -8,10 +8,15 @@ error:
   no-permission: "<red>You don't have permission to do that.</red>"
   poll-not-found: "<red>Poll not found.</red>"
   invalid-duration: "<red>Invalid duration format. Use: 5m, 2h, 1d</red>"
+  invalid-question: "<red>Question cannot be empty.</red>"
+  invalid-options: "<red>Invalid number of options.</red>"
+  invalid-option: "<red>Option text cannot be empty.</red>"
   duration-too-short: "<red>Duration must be at least {min} minutes.</red>"
   duration-too-long: "<red>Duration cannot exceed {max} minutes.</red>"
   max-polls-reached: "<red>Maximum active polls ({max}) reached.</red>"
   poll-expired: "<red>This poll has expired.</red>"
+  vote-cooldown: "<red>Please wait {seconds}s before voting again.</red>"
+  database: "<red>Database error. Please try again later.</red>"
 
 chat-input:
   enter-question: "<yellow>Type your poll question in chat (or 'cancel' to abort):</yellow>"
