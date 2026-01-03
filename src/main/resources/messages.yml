@@ -17,6 +17,7 @@ error:
   poll-expired: "<red>This poll has expired.</red>"
   vote-cooldown: "<red>Please wait {seconds}s before voting again.</red>"
   database: "<red>Database error. Please try again later.</red>"
+  player-only: "<red>This command can only be used by players.</red>"
 
 chat-input:
   enter-question: "<yellow>Type your poll question in chat (or 'cancel' to abort):</yellow>"
@@ -26,3 +27,11 @@ chat-input:
   subtitle: "<gray>{prompt}</gray>"
 
 poll-expired-broadcast: "<yellow>Poll '{question}' has ended!</yellow>"
+
+poll-list-header: "<yellow>Active polls:</yellow>"
+poll-list-entry: "<gray>#{id}: {question}</gray>"
+poll-list-empty: "<gray>No active polls.</gray>"
+
+admin-poll-list-header: "<yellow>All polls:</yellow>"
+admin-poll-list-entry: "<gray>#{id}: {question} <dark_gray>({status})</dark_gray></gray>"
+admin-poll-list-empty: "<gray>No polls found.</gray>"

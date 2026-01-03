@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class PollManager {
@@ -25,6 +26,7 @@ public class PollManager {
     private final DatabaseManager databaseManager;
     private ScheduledTask expirationTask;
     private final Cooldown<UUID> voteCooldown = Cooldown.create();
+    private final Map<Integer, Poll> activePolls = new ConcurrentHashMap<>();
 
     public PollManager(OGPoll plugin, ConfigManager configManager) {
         this.plugin = plugin;
@@ -85,8 +87,8 @@ public class PollManager {
             return;
         }
 
-        databaseManager.getActivePolls(activePolls -> {
-            if (activePolls.size() >= configManager.getMaxActivePolls()) {
+        databaseManager.getActivePolls(polls -> {
+            if (polls.size() >= configManager.getMaxActivePolls()) {
                 onFailure.accept("error.max-polls-reached");
                 return;
             }
@@ -110,6 +112,7 @@ public class PollManager {
                 }
                 addOptionsSequential(new ArrayList<>(pollOptions), () -> {
                     poll.setOptions(pollOptions);
+                    this.activePolls.put(poll.getId(), poll);
                     scheduleExpiration(poll);
                     onSuccess.accept(poll);
                 }, throwable -> onFailure.accept("error.database"));
@@ -151,11 +154,25 @@ public class PollManager {
     }
 
     public void closePoll(int pollId, Runnable onSuccess, Consumer<Throwable> onError) {
-        databaseManager.closePoll(pollId, onSuccess, onError);
+        databaseManager.closePoll(pollId, () -> {
+            activePolls.remove(pollId);
+            onSuccess.run();
+        }, onError);
     }
 
     public void deletePoll(int pollId, Runnable onSuccess, Consumer<Throwable> onError) {
-        databaseManager.deletePoll(pollId, onSuccess, onError);
+        databaseManager.deletePoll(pollId, () -> {
+            activePolls.remove(pollId);
+            onSuccess.run();
+        }, onError);
+    }
+
+    public List<String> getActivePollIdStrings() {
+        List<String> ids = new ArrayList<>();
+        for (Integer id : activePolls.keySet()) {
+            ids.add(String.valueOf(id));
+        }
+        return ids;
     }
 
     private void startExpirationScanner() {
@@ -168,7 +185,9 @@ public class PollManager {
 
     private void runExpirationScan() {
         databaseManager.getActivePolls(polls -> {
+            activePolls.clear();
             for (Poll poll : polls) {
+                activePolls.put(poll.getId(), poll);
                 if (poll.isExpired()) {
                     handleExpiration(poll);
                 }
@@ -178,6 +197,7 @@ public class PollManager {
 
     private void handleExpiration(Poll poll) {
         databaseManager.closePoll(poll.getId(), () -> {
+            activePolls.remove(poll.getId());
             Map<String, String> replacements = new HashMap<>();
             replacements.put("question", poll.getQuestion());
             Bukkit.getOnlinePlayers().forEach(player ->

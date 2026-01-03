@@ -129,6 +129,20 @@ public class DatabaseManager {
         });
     }
 
+    public void getAllPolls(Consumer<List<Poll>> onSuccess, Consumer<Throwable> onError) {
+        Scheduler.get().runAsync(() -> {
+            try {
+                List<Poll> polls = handler.rawQuery(
+                    "SELECT * FROM polls ORDER BY created_at DESC",
+                    pollListHandler()
+                ).create().query();
+                Scheduler.get().run(() -> onSuccess.accept(polls));
+            } catch (Exception e) {
+                handleError("Failed to fetch all polls", e, onError);
+            }
+        });
+    }
+
     public void getPollById(int id, Consumer<Poll> onSuccess, Consumer<Throwable> onError) {
         Scheduler.get().runAsync(() -> {
             try {

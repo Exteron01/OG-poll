@@ -3,6 +3,7 @@ package hu.exteron.ogpoll;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import hu.exteron.ogpoll.config.ConfigManager;
+import hu.exteron.ogpoll.commands.CommandManager;
 import hu.exteron.ogpoll.database.DatabaseManager;
 import hu.exteron.ogpoll.managers.ChatInputManager;
 import hu.exteron.ogpoll.managers.PollManager;
@@ -13,6 +14,7 @@ public final class OGPoll extends AxPlugin {
     private ConfigManager configManager;
     private DatabaseManager databaseManager;
     private PollManager pollManager;
+    private CommandManager commandManager;
 
     @Override
     public void enable() {
@@ -24,6 +26,7 @@ public final class OGPoll extends AxPlugin {
         databaseManager = new DatabaseManager(this, configManager);
         pollManager = new PollManager(this, configManager);
         pollManager.loadActivePolls();
+        commandManager = new CommandManager(this);
         ChatInputManager.init(configManager);
         getServer().getPluginManager().registerEvents(new ChatInputManager(configManager), this);
 
@@ -75,5 +78,9 @@ public final class OGPoll extends AxPlugin {
 
     public PollManager getPollManager() {
         return pollManager;
+    }
+
+    public CommandManager getCommandManager() {
+        return commandManager;
     }
 }
