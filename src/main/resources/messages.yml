@@ -11,6 +11,7 @@ error:
   invalid-question: "<red>Question cannot be empty.</red>"
   invalid-options: "<red>Invalid number of options.</red>"
   invalid-option: "<red>Option text cannot be empty.</red>"
+  invalid-max-votes: "<red>Invalid input. Enter a positive number or 'unlimited'.</red>"
   duration-too-short: "<red>Duration must be at least {min} minutes.</red>"
   duration-too-long: "<red>Duration cannot exceed {max} minutes.</red>"
   max-polls-reached: "<red>Maximum active polls ({max}) reached.</red>"
@@ -20,13 +21,16 @@ error:
   player-only: "<red>This command can only be used by players.</red>"
 
 chat-input:
+  enter-duration: "<yellow>Type the poll duration (ex: 5m, 2h, 1d) or 'cancel':</yellow>"
   enter-question: "<yellow>Type your poll question in chat (or 'cancel' to abort):</yellow>"
   enter-option: "<yellow>Type option #{number} (or 'done' to finish, 'cancel' to abort):</yellow>"
+  enter-max-votes: "<yellow>Max votes before auto-close (number or 'unlimited'):</yellow>"
   cancelled: "<gray>Poll creation cancelled.</gray>"
   title: "<#FFA239><b>Entry Mode</b></#FFA239>"
   subtitle: "<gray>{prompt}</gray>"
 
 poll-expired-broadcast: "<yellow>Poll '{question}' has ended!</yellow>"
+poll-max-votes-reached: "<#FFA239>Poll '{question}' has closed after reaching {votes} votes!</#FFA239>"
 
 poll-list-header: "<yellow>Active polls:</yellow>"
 poll-list-entry: "<gray>#{id}: {question}</gray>"
@@ -35,3 +39,5 @@ poll-list-empty: "<gray>No active polls.</gray>"
 admin-poll-list-header: "<yellow>All polls:</yellow>"
 admin-poll-list-entry: "<gray>#{id}: {question} <dark_gray>({status})</dark_gray></gray>"
 admin-poll-list-empty: "<gray>No polls found.</gray>"
+
+poll-create-usage: "<yellow>Usage:</yellow> <gray>/pollcreate <duration> <question></gray> <dark_gray>(ex: 5m \"Your question?\")</dark_gray>"

@@ -1,73 +1,324 @@
 # Poll Creation Template Selection GUI
 creation-template-gui:
-  title: "Select Poll Type</gradient>"
-  rows: 3
+  layout:
+    title: "Select Poll Type"
+    rows: 3
+
+  decoration:
+    material: GREEN_STAINED_GLASS_PANE
+    name: " "
+    slots:
+      - "0-8"
+      - "18-26"
 
   templates:
-    yes-no:
+    two-options:
       slot: 11
-      material: EMERALD
-      name: "<green>Yes/No Poll</green>"
+      material: PAPER
+      name: "<#FFA239>2 Options</#FFA239>"
       lore:
-        - "<gray>Simple yes or no question</gray>"
-        - "<yellow> ➡ Click to select</yellow>"
+        - ""
+        - "<gray>Two custom choices</gray>"
+        - "<gray>Not forced yes/no</gray>"
+        - ""
+        - "<#FFD41D>Options:</#FFD41D> <white>2</white>"
+        - ""
+        - "<gray>Click to select</gray>"
+
+    yes-no:
+      slot: 4
+      material: LIME_DYE
+      name: "<#FFA239>Yes/No Poll</#FFA239>"
+      lore:
+        - ""
+        - "<gray>A simple binary choice poll</gray>"
+        - "<gray>Perfect for quick decisions</gray>"
+        - ""
+        - "<#FFD41D>Options:</#FFD41D> <white>2</white>"
+        - ""
+        - "<gray>Click to select</gray>"
+      glow: false
 
     multiple-choice-3:
-      slot: 13
+      slot: 12
       material: PAPER
-      name: "<blue>3 Options</blue>"
+      name: "<#FFA239>3 Options</#FFA239>"
       lore:
-        - "<gray>Poll with 3 choices</gray>"
-        - "<yellow> ➡ Click to select</yellow>"
+        - ""
+        - "<gray>Standard multiple choice</gray>"
+        - "<gray>Great for most situations</gray>"
+        - ""
+        - "<#FFD41D>Options:</#FFD41D> <white>3</white>"
+        - ""
+        - "<gray>Click to select</gray>"
 
     multiple-choice-4:
-      slot: 15
-      material: PAPER
-      name: "<blue>4 Options</blue>"
+      slot: 14
+      material: MAP
+      name: "<#FFA239>4 Options</#FFA239>"
       lore:
-        - "<gray>Poll with 4 choices</gray>"
-        - "<yellow> ➡ Click to select</yellow>"
+        - ""
+        - "<gray>Extended multiple choice</gray>"
+        - "<gray>More variety in answers</gray>"
+        - ""
+        - "<#FFD41D>Options:</#FFD41D> <white>4</white>"
+        - ""
+        - "<gray>Click to select</gray>"
 
     multiple-choice-6:
-      slot: 22
+      slot: 15
       material: BOOK
-      name: "<blue>6 Options</blue>"
+      name: "<#FFA239>6 Options</#FFA239>"
       lore:
-        - "<gray>Poll with 6 choices</gray>"
-        - "<yellow> ➡ Click to select</yellow>"
+        - ""
+        - "<gray>Maximum choice variety</gray>"
+        - "<gray>Detailed decision making</gray>"
+        - ""
+        - "<#FFD41D>Options:</#FFD41D> <white>6</white>"
+        - ""
+        - "<gray>Click to select</gray>"
+
+  cancel:
+    slot: 22
+    material: BARRIER
+    name: "<red>Cancel</red>"
+    lore:
+      - ""
+      - "<gray>Abort poll creation</gray>"
 
 # Poll List GUI
 poll-list-gui:
-  title: "Active Polls</gradient>"
-  rows: 6
+  layout:
+    title: "Active Polls ({current_page}/{max_page})"
+    rows: 6
 
-  poll-item:
-    material: BOOK
-    name: "<yellow>{question}</yellow>"
-    lore:
-      - "<gray>Created: {date}</gray>"
-      - "<gray>Expires: {expires}</gray>"
-      - "<gray>Votes: {total_votes}</gray>"
-      - ""
-      - "<green> ➡ Click to vote!</green>"
+  items:
+    poll-item:
+      material: WRITABLE_BOOK
+      name: "<#FFA239>{question}</#FFA239>"
+      lore:
+        - ""
+        - "<#FFD41D>Ends in:</#FFD41D> <white>{remaining}</white>"
+        - "<#FFD41D>Total Votes:</#FFD41D> <white>{total_votes}</white>"
+        - "<#FFD41D>Created by:</#FFD41D> <white>{creator}</white>"
+        - ""
+        - "<gray>Click to vote</gray>"
+      glow: false
 
-  no-polls-item:
-    slot: 22
-    material: BARRIER
-    name: "<red>No Active Polls</red>"
+    poll-item-voted:
+      material: WRITTEN_BOOK
+      name: "<green>{question}</green>"
+      lore:
+        - ""
+        - "<#FFD41D>Ends in:</#FFD41D> <white>{remaining}</white>"
+        - "<#FFD41D>Total Votes:</#FFD41D> <white>{total_votes}</white>"
+        - "<#FFD41D>Created by:</#FFD41D> <white>{creator}</white>"
+        - ""
+        - "<gray>Results:</gray>"
+        - "{vote_ratios}"
+      glow: false
+
+    poll-item-expiring-soon:
+      material: ENCHANTED_BOOK
+      name: "<red>{question}</red>"
+      lore:
+        - ""
+        - "<red>Ending soon!</red>"
+        - "<#FFD41D>Time left:</#FFD41D> <red>{remaining}</red>"
+        - "<#FFD41D>Total Votes:</#FFD41D> <white>{total_votes}</white>"
+        - "<#FFD41D>Created by:</#FFD41D> <white>{creator}</white>"
+        - ""
+        - "<gray>Vote now before it closes</gray>"
+      glow: false
+
+    no-polls:
+      slot: 22
+      material: BARRIER
+      name: "<red>No Active Polls</red>"
+      lore:
+        - ""
+        - "<gray>There are currently no active polls</gray>"
+        - "<gray>Staff can create one with /createpoll</gray>"
+
+  decoration:
+    material: GREEN_STAINED_GLASS_PANE
+    name: " "
+    slots:
+      - "0-8"
+      - 9
+      - 17
+      - 18
+      - 26
+      - 27
+      - 35
+      - 36
+      - 44
+      - "45-53"
+
+  navigation:
+    finished:
+      slot: 45
+      material: BOOK
+      name: "<#FFA239>Finished Polls</#FFA239>"
+      lore:
+        - ""
+        - "<gray>View closed poll results</gray>"
+        - "<yellow>➡ Click to open</yellow>"
+
+    previous:
+      slot: 48
+      material: ARROW
+      name: "<#FFA239>Previous Page</#FFA239>"
+      lore:
+        - ""
+        - "<gray>Go to page {prev_page}</gray>"
+
+    next:
+      slot: 50
+      material: ARROW
+      name: "<#FFA239>Next Page</#FFA239>"
+      lore:
+        - ""
+        - "<gray>Go to page {next_page}</gray>"
+
+    refresh:
+      slot: 49
+      material: LIME_DYE
+      name: "<#FFA239>Refresh List</#FFA239>"
+      lore:
+        - ""
+        - "<gray>Update poll information</gray>"
+
 
 # Poll Voting GUI
 voting-gui:
-  title: "<yellow>{question}</yellow>"
-  rows: 3
+  layout:
+    title: "Vote Now"
+    rows: 3
 
-  option-item:
-    material: PAPER
-    name: "<aqua>{option}</aqua>"
-    lore:
-      - "<gray>Votes: {votes}</gray>"
-      - ""
-      - "<green> ➡ Click to vote!</green>"
+  items:
+    question-info:
+      slot: 4
+      material: ENCHANTED_BOOK
+      name: "<#FFA239>{question}</#FFA239>"
+      lore:
+        - ""
+        - "<#FFD41D>Time Remaining:</#FFD41D> <white>{remaining}</white>"
+        - "<#FFD41D>Total Votes:</#FFD41D> <white>{total_votes}</white>"
+        - "<#FFD41D>Created by:</#FFD41D> <white>{creator}</white>"
+        - ""
+        - "<gray>Choose your answer below</gray>"
 
-  already-voted-lore:
-    - "<gold>You voted for this!</gold>"
+    option-item:
+      material: PAPER
+      materials:
+        - LIME_DYE
+        - CYAN_DYE
+        - LIGHT_BLUE_DYE
+        - PURPLE_DYE
+        - PINK_DYE
+        - ORANGE_DYE
+      name: "<#FFA239>{option}</#FFA239>"
+      lore:
+        - "<#FFD41D>Current Votes:</#FFD41D> <white>{votes}</white> <dark_gray>({percentage}%)</dark_gray>"
+        - "{progress_bar}"
+        - "<gray>Click to vote</gray>"
+      glow: false
+
+    option-item-voted:
+      name: "<green>{option}</green>"
+      lore:
+        - "<#FFD41D>Current Votes:</#FFD41D> <white>{votes}</white> <dark_gray>({percentage}%)</dark_gray>"
+        - "{progress_bar}"
+        - "<gray>You voted for this option</gray>"
+      glow: true
+
+  decoration:
+    material: GREEN_STAINED_GLASS_PANE
+    name: " "
+
+  navigation:
+    back:
+      slot: 40
+      material: ARROW
+      name: "<#FFA239>Back to Poll List</#FFA239>"
+      lore:
+        - ""
+        - "<gray>Return to all active polls</gray>"
+
+  progress_bar:
+    length: 20
+    filled_char: "░"
+    empty_char: "░"
+    colors:
+      high: "<green>"
+      medium: "<yellow>"
+      low: "<gray>"
+
+# Finished Polls GUI
+finished-polls-gui:
+  layout:
+    title: "Finished Polls ({current_page}/{max_page})"
+    rows: 6
+
+  items:
+    poll-item:
+      material: BOOK
+      name: "<gray>{question}</gray>"
+      lore:
+        - ""
+        - "<#FFD41D>Ended:</#FFD41D> <white>{closed_ago} ago</white>"
+        - "<#FFD41D>Total Votes:</#FFD41D> <white>{total_votes}</white>"
+        - "<#FFD41D>Created by:</#FFD41D> <white>{creator}</white>"
+        - ""
+        - "<gray>Results:</gray>"
+        - "{vote_ratios}"
+      glow: false
+
+    no-polls:
+      slot: 22
+      material: BARRIER
+      name: "<red>No Finished Polls</red>"
+      lore:
+        - ""
+        - "<gray>There are no finished polls to display</gray>"
+
+  decoration:
+    material: GREEN_STAINED_GLASS_PANE
+    name: " "
+    slots:
+      - "0-8"
+      - 9
+      - 17
+      - 18
+      - 26
+      - 27
+      - 35
+      - 36
+      - 44
+      - "45-53"
+
+  navigation:
+    previous:
+      slot: 48
+      material: ARROW
+      name: "Previous Page"
+      lore:
+        - ""
+        - "<gray>Go to page {prev_page}</gray>"
+
+    next:
+      slot: 50
+      material: ARROW
+      name: "Next Page"
+      lore:
+        - ""
+        - "<gray>Go to page {next_page}</gray>"
+
+    back:
+      slot: 49
+      material: BARRIER
+      name: "Back to Active Polls"
+      lore:
+        - ""
+        - "<gray>Return to active polls</gray>"

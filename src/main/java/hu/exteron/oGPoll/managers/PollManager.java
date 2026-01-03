@@ -51,6 +51,7 @@ public class PollManager {
         String question,
         List<String> options,
         long durationMillis,
+        int maxVotes,
         Consumer<Poll> onSuccess,
         Consumer<String> onFailure
     ) {
@@ -99,6 +100,7 @@ public class PollManager {
             poll.setCreatedAt(System.currentTimeMillis());
             poll.setExpiresAt(System.currentTimeMillis() + durationMillis);
             poll.setActive(true);
+            poll.setMaxVotes(maxVotes);
 
             databaseManager.createPoll(poll, pollId -> {
                 poll.setId(pollId);
@@ -148,6 +150,7 @@ public class PollManager {
                 databaseManager.recordVote(vote, () -> {
                     voteCooldown.addCooldown(playerUuid, configManager.getVoteCooldownMillis());
                     onResult.accept(VoteResult.ok());
+                    checkMaxVotesReached(poll);
                 }, throwable -> onResult.accept(VoteResult.fail("error.database", 0L)));
             }, throwable -> onResult.accept(VoteResult.fail("error.database", 0L)));
         }, throwable -> onResult.accept(VoteResult.fail("error.database", 0L)));
@@ -204,6 +207,28 @@ public class PollManager {
                 configManager.sendMessage(player, "poll-expired-broadcast", replacements)
             );
         }, throwable -> plugin.getLogger().warning("Failed to close poll: " + throwable.getMessage()));
+    }
+
+    private void checkMaxVotesReached(Poll poll) {
+        int maxVotes = poll.getMaxVotes();
+        if (maxVotes <= 0) {
+            return;
+        }
+
+        databaseManager.getVoteCounts(poll.getId(), counts -> {
+            int totalVotes = counts.values().stream().mapToInt(Integer::intValue).sum();
+            if (totalVotes >= maxVotes) {
+                databaseManager.closePoll(poll.getId(), () -> {
+                    activePolls.remove(poll.getId());
+                    Map<String, String> replacements = new HashMap<>();
+                    replacements.put("question", poll.getQuestion());
+                    replacements.put("votes", String.valueOf(totalVotes));
+                    Bukkit.getOnlinePlayers().forEach(player ->
+                        configManager.sendMessage(player, "poll-max-votes-reached", replacements)
+                    );
+                }, throwable -> plugin.getLogger().warning("Failed to close poll after max votes: " + throwable.getMessage()));
+            }
+        }, throwable -> plugin.getLogger().warning("Failed to check vote counts: " + throwable.getMessage()));
     }
 
     private void scheduleExpiration(Poll poll) {

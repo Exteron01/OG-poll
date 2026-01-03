@@ -12,6 +12,7 @@ public class Poll {
     private long expiresAt;
     private boolean active;
     private Long closedAt;
+    private int maxVotes;
     private List<PollOption> options = new ArrayList<>();
 
     public int getId() {
@@ -68,6 +69,14 @@ public class Poll {
 
     public void setClosedAt(Long closedAt) {
         this.closedAt = closedAt;
+    }
+
+    public int getMaxVotes() {
+        return maxVotes;
+    }
+
+    public void setMaxVotes(int maxVotes) {
+        this.maxVotes = maxVotes;
     }
 
     public List<PollOption> getOptions() {

@@ -13,6 +13,7 @@ import hu.exteron.ogpoll.models.PollOption;
 import hu.exteron.ogpoll.models.Vote;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -72,8 +73,8 @@ public class DatabaseManager {
     public void createPoll(Poll poll, Consumer<Integer> onSuccess, Consumer<Throwable> onError) {
         Scheduler.get().runAsync(() -> {
             String sql = """
-                INSERT INTO polls (question, creator_uuid, created_at, expires_at, active, closed_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO polls (question, creator_uuid, created_at, expires_at, active, closed_at, max_votes)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
             try (Connection connection = handler.connection();
                  PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -87,6 +88,7 @@ public class DatabaseManager {
                 } else {
                     statement.setLong(6, poll.getClosedAt());
                 }
+                statement.setInt(7, poll.getMaxVotes());
                 statement.executeUpdate();
                 try (ResultSet keys = statement.getGeneratedKeys()) {
                     if (keys.next()) {
@@ -143,6 +145,20 @@ public class DatabaseManager {
         });
     }
 
+    public void getFinishedPolls(Consumer<List<Poll>> onSuccess, Consumer<Throwable> onError) {
+        Scheduler.get().runAsync(() -> {
+            try {
+                List<Poll> polls = handler.rawQuery(
+                    "SELECT * FROM polls WHERE active = FALSE ORDER BY closed_at DESC",
+                    pollListHandler()
+                ).create().query();
+                attachOptions(polls, completed -> Scheduler.get().run(() -> onSuccess.accept(completed)), onError);
+            } catch (Exception e) {
+                handleError("Failed to fetch finished polls", e, onError);
+            }
+        });
+    }
+
     public void getPollById(int id, Consumer<Poll> onSuccess, Consumer<Throwable> onError) {
         Scheduler.get().runAsync(() -> {
             try {
@@ -176,6 +192,37 @@ public class DatabaseManager {
                 handleError("Failed to check vote status", e, onError);
             }
         });
+    }
+
+    public void getPlayerVote(int pollId, UUID playerUuid, Consumer<Integer> onSuccess, Consumer<Throwable> onError) {
+        Scheduler.get().runAsync(() -> {
+            try {
+                Integer optionId = handler.rawQuery(
+                    "SELECT option_id FROM votes WHERE poll_id = ? AND player_uuid = ?",
+                    playerVoteHandler()
+                ).create().query(pollId, playerUuid.toString());
+                Scheduler.get().run(() -> onSuccess.accept(optionId));
+            } catch (Exception e) {
+                handleError("Failed to get player vote", e, onError);
+            }
+        });
+    }
+
+    private ResultHandler<Integer> playerVoteHandler() {
+        return new ResultHandler<>() {
+            @Override
+            public Integer handle(ResultSet resultSet) throws java.sql.SQLException {
+                return handle(resultSet, true);
+            }
+
+            @Override
+            public Integer handle(ResultSet resultSet, boolean close) throws java.sql.SQLException {
+                if (resultSet.next()) {
+                    return resultSet.getInt("option_id");
+                }
+                return null;
+            }
+        };
     }
 
     public void recordVote(Vote vote, Runnable onSuccess, Consumer<Throwable> onError) {
@@ -241,9 +288,14 @@ public class DatabaseManager {
                 created_at BIGINT NOT NULL,
                 expires_at BIGINT NOT NULL,
                 active BOOLEAN DEFAULT TRUE,
-                closed_at BIGINT DEFAULT NULL
+                closed_at BIGINT DEFAULT NULL,
+                max_votes INTEGER DEFAULT 0
             )
             """).execute();
+
+        // No, this not supposed to happen, but it did :shrug:
+        ensureColumnExists("polls", "max_votes",
+            "ALTER TABLE polls ADD COLUMN max_votes INTEGER DEFAULT 0");
 
         handler.rawQuery("""
             CREATE TABLE IF NOT EXISTS poll_options (
@@ -274,6 +326,34 @@ public class DatabaseManager {
         handler.rawQuery("CREATE INDEX IF NOT EXISTS idx_votes_player ON votes(player_uuid)").execute();
     }
 
+    private void ensureColumnExists(String tableName, String columnName, String ddl) {
+        try (Connection connection = handler.connection()) {
+            DatabaseMetaData meta = connection.getMetaData();
+            if (columnExists(meta, tableName, columnName)) {
+                return;
+            }
+        } catch (Exception ignored) {
+            return;
+        }
+
+        try {
+            handler.rawQuery(ddl).execute();
+        } catch (Exception ignored) {
+            // Ignore if the column already exists
+        }
+    }
+
+    private boolean columnExists(DatabaseMetaData meta, String tableName, String columnName) throws Exception {
+        try (ResultSet rs = meta.getColumns(null, null, tableName, columnName)) {
+            if (rs.next()) {
+                return true;
+            }
+        }
+        try (ResultSet rs = meta.getColumns(null, null, tableName.toUpperCase(Locale.ROOT), columnName.toUpperCase(Locale.ROOT))) {
+            return rs.next();
+        }
+    }
+
     private void attachOptions(
         List<Poll> polls,
         Consumer<List<Poll>> onSuccess,
@@ -296,7 +376,7 @@ public class DatabaseManager {
         }
     }
 
-    private void getOptions(int pollId, Consumer<List<PollOption>> onSuccess, Consumer<Throwable> onError) {
+    public void getOptions(int pollId, Consumer<List<PollOption>> onSuccess, Consumer<Throwable> onError) {
         Scheduler.get().runAsync(() -> {
             try {
                 List<PollOption> options = handler.rawQuery(
@@ -410,6 +490,7 @@ public class DatabaseManager {
         poll.setActive(resultSet.getBoolean("active"));
         long closedAt = resultSet.getLong("closed_at");
         poll.setClosedAt(resultSet.wasNull() ? null : closedAt);
+        poll.setMaxVotes(resultSet.getInt("max_votes"));
         return poll;
     }
 
