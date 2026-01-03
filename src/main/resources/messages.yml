@@ -17,5 +17,7 @@ chat-input:
   enter-question: "<yellow>Type your poll question in chat (or 'cancel' to abort):</yellow>"
   enter-option: "<yellow>Type option #{number} (or 'done' to finish, 'cancel' to abort):</yellow>"
   cancelled: "<gray>Poll creation cancelled.</gray>"
+  title: "<#FFA239><b>Entry Mode</b></#FFA239>"
+  subtitle: "<gray>{prompt}</gray>"
 
 poll-expired-broadcast: "<yellow>Poll '{question}' has ended!</yellow>"

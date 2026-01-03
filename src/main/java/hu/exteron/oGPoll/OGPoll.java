@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import hu.exteron.ogpoll.config.ConfigManager;
 import hu.exteron.ogpoll.database.DatabaseManager;
+import hu.exteron.ogpoll.managers.ChatInputManager;
 import hu.exteron.ogpoll.managers.PollManager;
 
 public final class OGPoll extends AxPlugin {
@@ -23,6 +24,8 @@ public final class OGPoll extends AxPlugin {
         databaseManager = new DatabaseManager(this, configManager);
         pollManager = new PollManager(this, configManager);
         pollManager.loadActivePolls();
+        ChatInputManager.init(configManager);
+        getServer().getPluginManager().registerEvents(new ChatInputManager(configManager), this);
 
         getLogger().info("OG-Poll enabled successfully!");
     }
@@ -55,6 +58,7 @@ public final class OGPoll extends AxPlugin {
     public void updateFlags() {
         FeatureFlags.PLACEHOLDER_API_HOOK.set(true);
         FeatureFlags.PLACEHOLDER_API_IDENTIFIER.set("ogpoll");
+        FeatureFlags.ENABLE_PACKET_LISTENERS.set(true);
     }
 
     public static OGPoll getInstance() {
