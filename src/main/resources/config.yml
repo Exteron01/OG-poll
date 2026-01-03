@@ -16,6 +16,7 @@ poll:
   min-options: 2
   max-options: 6
   show-vote-counts: true
+  broadcast-end: true
   vote-cooldown-milliseconds: 2000
 
 duration:

@@ -15,7 +15,6 @@ import hu.exteron.ogpoll.models.PollOption;
 import hu.exteron.ogpoll.utils.GuiCooldowns;
 import hu.exteron.ogpoll.utils.ProgressBarUtil;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -75,7 +74,6 @@ public final class PollListGUI {
         gui.setCloseGuiAction(event -> cancelUpdateTask(player.getUniqueId()));
         Scheduler.get().run(() -> gui.open(player));
 
-        // Load polls async
         databaseManager.getActivePolls(polls -> {
             if (polls.isEmpty()) {
                 addNoPollsItem(gui);
@@ -96,7 +94,6 @@ public final class PollListGUI {
                     synchronized (remaining) {
                         remaining[0]--;
                         if (remaining[0] == 0) {
-                            // All data loaded, build GUI
                             List<Poll> sortedPolls = new ArrayList<>(polls);
                             for (Poll p : sortedPolls) {
                                 PollDisplayData displayData = pollDataMap.get(p.getId());
@@ -157,7 +154,6 @@ public final class PollListGUI {
                     updatedMap.put(poll.getId(), poll);
                 }
 
-                // Remove expired polls
                 boolean removed = false;
                 for (int i = pollOrder.size() - 1; i >= 0; i--) {
                     int pollId = pollOrder.get(i);
@@ -176,7 +172,6 @@ public final class PollListGUI {
                     gui.update();
                 }
 
-                // Add new polls
                 for (Poll poll : updatedPolls) {
                     if (!pollById.containsKey(poll.getId())) {
                         pollById.put(poll.getId(), poll);
@@ -190,7 +185,6 @@ public final class PollListGUI {
                     }
                 }
 
-                // Update remaining items
                 for (int index = 0; index < pollOrder.size(); index++) {
                     int pollId = pollOrder.get(index);
                     Poll poll = updatedMap.getOrDefault(pollId, pollById.get(pollId));
@@ -309,9 +303,8 @@ public final class PollListGUI {
     }
 
     private String getCreatorName(Poll poll) {
-        if (poll.getCreatorUuid() == null) return "Unknown";
-        String name = Bukkit.getOfflinePlayer(poll.getCreatorUuid()).getName();
-        return name != null ? name : "Unknown";
+        String name = poll.getCreatorName();
+        return name != null && !name.isEmpty() ? name : "Unknown";
     }
 
     private void addNoPollsItem(PaginatedGui gui) {

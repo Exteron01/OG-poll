@@ -89,6 +89,10 @@ public class ConfigManager {
         return config.getLong("poll.vote-cooldown-milliseconds", 2000L);
     }
 
+    public boolean shouldBroadcastEnd() {
+        return config.getBoolean("poll.broadcast-end", true);
+    }
+
     public int getMinDurationMinutes() {
         return config.getInt("duration.min-minutes", 1);
     }

@@ -15,7 +15,6 @@ import hu.exteron.ogpoll.models.PollOption;
 import hu.exteron.ogpoll.utils.GuiCooldowns;
 import hu.exteron.ogpoll.utils.ProgressBarUtil;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -222,9 +221,8 @@ public final class FinishedPollsGUI {
     }
 
     private String getCreatorName(Poll poll) {
-        if (poll.getCreatorUuid() == null) return "Unknown";
-        String name = Bukkit.getOfflinePlayer(poll.getCreatorUuid()).getName();
-        return name != null ? name : "Unknown";
+        String name = poll.getCreatorName();
+        return name != null && !name.isEmpty() ? name : "Unknown";
     }
 
     private void addNoPollsItem(PaginatedGui gui) {

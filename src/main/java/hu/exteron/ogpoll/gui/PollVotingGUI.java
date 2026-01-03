@@ -15,7 +15,6 @@ import hu.exteron.ogpoll.models.PollOption;
 import hu.exteron.ogpoll.utils.GuiCooldowns;
 import hu.exteron.ogpoll.utils.ProgressBarUtil;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,12 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public final class PollVotingGUI {
-    private static final int[] OPTION_SLOTS_2 = {12, 14};
-    private static final int[] OPTION_SLOTS_3 = {11, 13, 15};
-    private static final int[] OPTION_SLOTS_4 = {10, 12, 14, 16};
-    private static final int[] OPTION_SLOTS_5 = {10, 12, 13, 14, 16};
-    private static final int[] OPTION_SLOTS_6 = {10, 11, 12, 14, 15, 16};
-
     private final OGPoll plugin;
     private final ConfigManager configManager;
     private final DatabaseManager databaseManager;
@@ -340,9 +333,8 @@ public final class PollVotingGUI {
     }
 
     private String getCreatorName(Poll poll) {
-        if (poll.getCreatorUuid() == null) return "Unknown";
-        String name = Bukkit.getOfflinePlayer(poll.getCreatorUuid()).getName();
-        return name != null ? name : "Unknown";
+        String name = poll.getCreatorName();
+        return name != null && !name.isEmpty() ? name : "Unknown";
     }
 
     private Component format(String input, Map<String, String> replacements) {

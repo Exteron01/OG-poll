@@ -11,6 +11,7 @@ import hu.exteron.ogpoll.models.PollOption;
 import hu.exteron.ogpoll.models.Vote;
 import hu.exteron.ogpoll.utils.InputValidator;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,8 +26,9 @@ public class PollManager {
     private final ConfigManager configManager;
     private final DatabaseManager databaseManager;
     private ScheduledTask expirationTask;
-    private final Cooldown<UUID> voteCooldown = Cooldown.create();
-    private final Map<Integer, Poll> activePolls = new ConcurrentHashMap<>();
+    private final Cooldown<UUID> voteCooldown = Cooldown.createSynchronized();
+    private volatile Map<Integer, Poll> activePolls = new ConcurrentHashMap<>();
+    private final Map<Integer, ScheduledTask> expirationTasks = new ConcurrentHashMap<>();
 
     public PollManager(OGPoll plugin, ConfigManager configManager) {
         this.plugin = plugin;
@@ -44,6 +46,11 @@ public class PollManager {
             expirationTask.cancel();
             expirationTask = null;
         }
+        
+        for (ScheduledTask task : expirationTasks.values()) {
+            task.cancel();
+        }
+        expirationTasks.clear();
     }
 
     public void createPoll(
@@ -97,6 +104,12 @@ public class PollManager {
             Poll poll = new Poll();
             poll.setQuestion(sanitizedQuestion);
             poll.setCreatorUuid(creator);
+            
+            Player onlinePlayer = Bukkit.getPlayer(creator);
+            String creatorName = onlinePlayer != null ? onlinePlayer.getName() : 
+                                Bukkit.getOfflinePlayer(creator).getName();
+            poll.setCreatorName(creatorName != null ? creatorName : "Unknown");
+            
             poll.setCreatedAt(System.currentTimeMillis());
             poll.setExpiresAt(System.currentTimeMillis() + durationMillis);
             poll.setActive(true);
@@ -157,6 +170,8 @@ public class PollManager {
     }
 
     public void closePoll(int pollId, Runnable onSuccess, Consumer<Throwable> onError) {
+        cancelExpirationTask(pollId);
+        
         databaseManager.closePoll(pollId, () -> {
             activePolls.remove(pollId);
             onSuccess.run();
@@ -164,10 +179,19 @@ public class PollManager {
     }
 
     public void deletePoll(int pollId, Runnable onSuccess, Consumer<Throwable> onError) {
+        cancelExpirationTask(pollId);
+        
         databaseManager.deletePoll(pollId, () -> {
             activePolls.remove(pollId);
             onSuccess.run();
         }, onError);
+    }
+    
+    private void cancelExpirationTask(int pollId) {
+        ScheduledTask task = expirationTasks.remove(pollId);
+        if (task != null) {
+            task.cancel();
+        }
     }
 
     public List<String> getActivePollIdStrings() {
@@ -188,24 +212,27 @@ public class PollManager {
 
     private void runExpirationScan() {
         databaseManager.getActivePolls(polls -> {
-            activePolls.clear();
+            Map<Integer, Poll> newActivePolls = new ConcurrentHashMap<>();
             for (Poll poll : polls) {
-                activePolls.put(poll.getId(), poll);
+                newActivePolls.put(poll.getId(), poll);
                 if (poll.isExpired()) {
                     handleExpiration(poll);
                 }
             }
+            activePolls = newActivePolls;
         }, throwable -> plugin.getLogger().warning("Failed to scan active polls: " + throwable.getMessage()));
     }
 
     private void handleExpiration(Poll poll) {
         databaseManager.closePoll(poll.getId(), () -> {
             activePolls.remove(poll.getId());
-            Map<String, String> replacements = new HashMap<>();
-            replacements.put("question", poll.getQuestion());
-            Bukkit.getOnlinePlayers().forEach(player ->
-                configManager.sendMessage(player, "poll-expired-broadcast", replacements)
-            );
+            if (configManager.shouldBroadcastEnd()) {
+                Map<String, String> replacements = new HashMap<>();
+                replacements.put("question", poll.getQuestion());
+                Bukkit.getOnlinePlayers().forEach(player ->
+                    configManager.sendMessage(player, "poll-expired-broadcast", replacements)
+                );
+            }
         }, throwable -> plugin.getLogger().warning("Failed to close poll: " + throwable.getMessage()));
     }
 
@@ -220,12 +247,14 @@ public class PollManager {
             if (totalVotes >= maxVotes) {
                 databaseManager.closePoll(poll.getId(), () -> {
                     activePolls.remove(poll.getId());
-                    Map<String, String> replacements = new HashMap<>();
-                    replacements.put("question", poll.getQuestion());
-                    replacements.put("votes", String.valueOf(totalVotes));
-                    Bukkit.getOnlinePlayers().forEach(player ->
-                        configManager.sendMessage(player, "poll-max-votes-reached", replacements)
-                    );
+                    if (configManager.shouldBroadcastEnd()) {
+                        Map<String, String> replacements = new HashMap<>();
+                        replacements.put("question", poll.getQuestion());
+                        replacements.put("votes", String.valueOf(totalVotes));
+                        Bukkit.getOnlinePlayers().forEach(player ->
+                            configManager.sendMessage(player, "poll-max-votes-reached", replacements)
+                        );
+                    }
                 }, throwable -> plugin.getLogger().warning("Failed to close poll after max votes: " + throwable.getMessage()));
             }
         }, throwable -> plugin.getLogger().warning("Failed to check vote counts: " + throwable.getMessage()));
@@ -238,7 +267,14 @@ public class PollManager {
             return;
         }
         long delayTicks = Math.max(1L, delayMillis / 50L);
-        Scheduler.get().runLater(() -> handleExpiration(poll), delayTicks);
+        
+        cancelExpirationTask(poll.getId());
+        
+        ScheduledTask task = Scheduler.get().runLater(() -> {
+            expirationTasks.remove(poll.getId());
+            handleExpiration(poll);
+        }, delayTicks);
+        expirationTasks.put(poll.getId(), task);
     }
 
     private void addOptionsSequential(

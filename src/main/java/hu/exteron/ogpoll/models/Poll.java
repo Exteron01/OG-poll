@@ -8,6 +8,7 @@ public class Poll {
     private int id;
     private String question;
     private UUID creatorUuid;
+    private String creatorName;
     private long createdAt;
     private long expiresAt;
     private boolean active;
@@ -37,6 +38,14 @@ public class Poll {
 
     public void setCreatorUuid(UUID creatorUuid) {
         this.creatorUuid = creatorUuid;
+    }
+
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
     }
 
     public long getCreatedAt() {

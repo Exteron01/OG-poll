@@ -6,6 +6,7 @@ import hu.exteron.ogpoll.config.ConfigManager;
 import hu.exteron.ogpoll.commands.CommandManager;
 import hu.exteron.ogpoll.database.DatabaseManager;
 import hu.exteron.ogpoll.managers.ChatInputManager;
+import hu.exteron.ogpoll.managers.CleanupManager;
 import hu.exteron.ogpoll.managers.PollManager;
 
 public final class OGPoll extends AxPlugin {
@@ -29,6 +30,7 @@ public final class OGPoll extends AxPlugin {
         commandManager = new CommandManager(this);
         ChatInputManager.init(configManager);
         getServer().getPluginManager().registerEvents(new ChatInputManager(configManager), this);
+        getServer().getPluginManager().registerEvents(new CleanupManager(), this);
 
         getLogger().info("OG-Poll enabled successfully!");
     }

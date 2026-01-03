@@ -24,12 +24,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class DatabaseManager {
     private final OGPoll plugin;
     private final ConfigManager configManager;
     private DatabaseHandler handler;
+    private volatile boolean ready = false;
 
     public DatabaseManager(OGPoll plugin, ConfigManager configManager) {
         this.plugin = plugin;
@@ -57,7 +59,20 @@ public class DatabaseManager {
         databaseConfig.pool.connectionTimeout = Math.toIntExact(configManager.getDatabasePoolConnectionTimeout());
 
         handler = new DatabaseHandler(plugin, databaseConfig);
-        initializeTables();
+        
+        Scheduler.get().runAsync(() -> {
+            try {
+                initializeTables();
+                ready = true;
+                plugin.getLogger().info("Database tables initialized successfully!");
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to initialize database tables: " + e.getMessage());
+            }
+        });
+    }
+
+    public boolean isReady() {
+        return ready;
     }
 
     public void shutdown() {
@@ -73,22 +88,23 @@ public class DatabaseManager {
     public void createPoll(Poll poll, Consumer<Integer> onSuccess, Consumer<Throwable> onError) {
         Scheduler.get().runAsync(() -> {
             String sql = """
-                INSERT INTO polls (question, creator_uuid, created_at, expires_at, active, closed_at, max_votes)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO polls (question, creator_uuid, creator_name, created_at, expires_at, active, closed_at, max_votes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
             try (Connection connection = handler.connection();
                  PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1, poll.getQuestion());
                 statement.setString(2, poll.getCreatorUuid().toString());
-                statement.setLong(3, poll.getCreatedAt());
-                statement.setLong(4, poll.getExpiresAt());
-                statement.setBoolean(5, poll.isActive());
+                statement.setString(3, poll.getCreatorName());
+                statement.setLong(4, poll.getCreatedAt());
+                statement.setLong(5, poll.getExpiresAt());
+                statement.setBoolean(6, poll.isActive());
                 if (poll.getClosedAt() == null) {
-                    statement.setNull(6, Types.BIGINT);
+                    statement.setNull(7, Types.BIGINT);
                 } else {
-                    statement.setLong(6, poll.getClosedAt());
+                    statement.setLong(7, poll.getClosedAt());
                 }
-                statement.setInt(7, poll.getMaxVotes());
+                statement.setInt(8, poll.getMaxVotes());
                 statement.executeUpdate();
                 try (ResultSet keys = statement.getGeneratedKeys()) {
                     if (keys.next()) {
@@ -285,6 +301,7 @@ public class DatabaseManager {
                 id INTEGER PRIMARY KEY AUTO_INCREMENT,
                 question VARCHAR(255) NOT NULL,
                 creator_uuid VARCHAR(36) NOT NULL,
+                creator_name VARCHAR(32) DEFAULT NULL,
                 created_at BIGINT NOT NULL,
                 expires_at BIGINT NOT NULL,
                 active BOOLEAN DEFAULT TRUE,
@@ -296,6 +313,9 @@ public class DatabaseManager {
         // No, this not supposed to happen, but it did :shrug:
         ensureColumnExists("polls", "max_votes",
             "ALTER TABLE polls ADD COLUMN max_votes INTEGER DEFAULT 0");
+        
+        ensureColumnExists("polls", "creator_name",
+            "ALTER TABLE polls ADD COLUMN creator_name VARCHAR(32) DEFAULT NULL");
 
         handler.rawQuery("""
             CREATE TABLE IF NOT EXISTS poll_options (
@@ -364,12 +384,11 @@ public class DatabaseManager {
             return;
         }
         int total = polls.size();
-        int[] remaining = new int[]{total};
+        AtomicInteger remaining = new AtomicInteger(total);
         for (Poll poll : polls) {
             getOptions(poll.getId(), options -> {
                 poll.setOptions(options);
-                remaining[0]--;
-                if (remaining[0] <= 0) {
+                if (remaining.decrementAndGet() <= 0) {
                     onSuccess.accept(polls);
                 }
             }, onError);
@@ -485,6 +504,7 @@ public class DatabaseManager {
         poll.setId(resultSet.getInt("id"));
         poll.setQuestion(resultSet.getString("question"));
         poll.setCreatorUuid(UUID.fromString(resultSet.getString("creator_uuid")));
+        poll.setCreatorName(resultSet.getString("creator_name"));
         poll.setCreatedAt(resultSet.getLong("created_at"));
         poll.setExpiresAt(resultSet.getLong("expires_at"));
         poll.setActive(resultSet.getBoolean("active"));
