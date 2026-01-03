@@ -1,6 +1,7 @@
 poll-created: "<green>Poll created successfully! ID: {id}</green>"
 poll-closed: "<yellow>Poll '{question}' has been closed.</yellow>"
 poll-removed: "<red>Poll removed.</red>"
+reload-complete: "<green>Configs reloaded.</green>"
 vote-success: "<green>You voted for: {option}</green>"
 vote-already: "<red>You've already voted in this poll!</red>"
 

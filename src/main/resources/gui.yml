@@ -102,6 +102,9 @@ poll-list-gui:
         - "<#FFD41D>Total Votes:</#FFD41D> <white>{total_votes}</white>"
         - "<#FFD41D>Created by:</#FFD41D> <white>{creator}</white>"
         - ""
+        - "<gray>Results:</gray>"
+        - "{vote_ratios}"
+        - ""
         - "<gray>Click to vote</gray>"
       glow: false
 
@@ -138,7 +141,6 @@ poll-list-gui:
       lore:
         - ""
         - "<gray>There are currently no active polls</gray>"
-        - "<gray>Staff can create one with /createpoll</gray>"
 
   decoration:
     material: GREEN_STAINED_GLASS_PANE

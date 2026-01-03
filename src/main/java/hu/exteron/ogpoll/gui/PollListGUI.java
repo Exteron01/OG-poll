@@ -260,7 +260,7 @@ public final class PollListGUI {
         replacements.put("total_votes", String.valueOf(data.totalVotes));
         replacements.put("creator", creatorName);
 
-        if (data.hasVoted && !data.options.isEmpty()) {
+        if (!data.options.isEmpty()) {
             replacements.put("vote_ratios", buildVoteRatios(data.options, data.voteCounts, data.totalVotes));
         }
 

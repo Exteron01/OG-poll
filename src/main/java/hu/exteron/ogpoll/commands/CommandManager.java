@@ -104,6 +104,16 @@ public final class CommandManager {
 
         manager.command(
             manager.commandBuilder("polls")
+                .literal("reload")
+                .permission("ogpoll.manage")
+                .handler(context -> {
+                    configManager.reload();
+                    configManager.sendMessage(context.sender().getSender(), "reload-complete");
+                })
+        );
+
+        manager.command(
+            manager.commandBuilder("polls")
                 .literal("close")
                 .permission("ogpoll.manage")
                 .required("pollId", IntegerParser.integerParser(),
@@ -179,6 +189,16 @@ public final class CommandManager {
                         return;
                     }
                     new FinishedPollsGUI(plugin).open(player);
+                })
+        );
+
+        manager.command(
+            manager.commandBuilder("poll")
+                .literal("reload")
+                .permission("ogpoll.manage")
+                .handler(context -> {
+                    configManager.reload();
+                    configManager.sendMessage(context.sender().getSender(), "reload-complete");
                 })
         );
 
