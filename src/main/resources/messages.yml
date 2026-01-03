@@ -27,7 +27,7 @@ chat-input:
   enter-option: "<yellow>Type option #{number} (or 'done' to finish, 'cancel' to abort):</yellow>"
   enter-max-votes: "<yellow>Max votes before auto-close (number or 'unlimited'):</yellow>"
   cancelled: "<gray>Poll creation cancelled.</gray>"
-  title: "<#FFA239><b>Entry Mode</b></#FFA239>"
+  title: "<#FFA239><b>Input Mode</b></#FFA239>"
   subtitle: "<gray>{prompt}</gray>"
 
 poll-expired-broadcast: "<yellow>Poll '{question}' has ended!</yellow>"
